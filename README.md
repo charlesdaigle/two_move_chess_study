@@ -16,6 +16,7 @@ while keeping the starting position recognizably chess-like?
 | `experiments/results/` | Committed pilot data (JSONL) and reports — findings in `REPORT.md` |
 | `experiments/DISTRIBUTED.md` | Sharding model + manual node setup reference |
 | `deploy/ansible/` | Idempotent Ansible deployment for home compute nodes (Pi cluster): deploy / sweep / collect playbooks |
+| `deploy/apptainer/` | Optional HPC-style container path: validated SIF definition + assessment of when it beats the venv |
 
 ## Quick start
 

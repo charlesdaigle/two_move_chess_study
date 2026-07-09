@@ -73,3 +73,10 @@ here**, for reasons specific to this workload:
 Revisit if the engine ever grows a compiled core (Rust/C): then a prebuilt
 multi-arch image (or just prebuilt wheels served from the repo) becomes the
 clean way to skip cross-compiling on the Zeros.
+
+**Addendum — Apptainer/Singularity**: assessed separately in
+`deploy/apptainer/README.md`. It cures Docker's two disqualifiers (no daemon,
+no registry — single-file SIF, rootless) and is the right choice if this study
+ever needs citable frozen environments or real HPC time; it stays optional only
+because installing Apptainer itself on Raspberry Pi OS currently costs more
+than the venv it would replace. A validated definition file is included there.

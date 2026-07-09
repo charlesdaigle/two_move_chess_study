@@ -1,0 +1,40 @@
+# Apptainer/Singularity definition for the two-move chess study.
+#
+# Build FROM THE REPO ROOT (the %files paths are relative to the build cwd),
+# on an aarch64 machine for the Pi fleet (the Pi 4B is the natural builder):
+#
+#   sudo apptainer build twomove-$(git rev-parse --short HEAD).sif deploy/apptainer/twomove.def
+#
+# The SIF is a single immutable file: scp it to the Zeros, no registry needed.
+# Run a sweep shard (bind a host dir for results; containers are read-only):
+#
+#   apptainer run --bind /opt/twomove/results:/results twomove-<rev>.sif \
+#       --stage s2b --materials k_n_pawns,k_pawns8 --regimes ET \
+#       --games 300 --nodes 12000 --out /results --workers 4 --shard 0/4
+
+Bootstrap: docker
+From: python:3.11-slim-bookworm
+
+%files
+    twomove /opt/twomove/app/twomove
+    tests   /opt/twomove/app/tests
+
+%post
+    pip install --no-cache-dir chess==1.11.2
+    # The suite must pass inside the image or the build fails: a SIF that
+    # exists is a SIF whose engine passed its gates.
+    cd /opt/twomove/app && python -m unittest discover tests
+
+%environment
+    export PYTHONDONTWRITEBYTECODE=1
+
+%runscript
+    cd /opt/twomove/app
+    exec python -m twomove.sweep "$@"
+
+%labels
+    Study two-move-chess-balance
+
+%help
+    Two-move chess sweep worker. See deploy/apptainer/README.md.
+    apptainer run twomove.sif --stage ... --out /results --shard i/N

@@ -14,8 +14,11 @@ Nice=10
 {% if twomove_memory_max %}
 MemoryMax={{ twomove_memory_max }}
 {% endif %}
-# The process exits 0 when its slice is complete; no restart loop.
-Restart=no
+# Slices are resumable (played game indices are skipped on start), so crash
+# recovery is free: restart on failure (OOM-kill, transient error), but a
+# clean exit 0 = slice complete, no restart loop.
+Restart=on-failure
+RestartSec=60
 
 [Install]
 WantedBy=multi-user.target

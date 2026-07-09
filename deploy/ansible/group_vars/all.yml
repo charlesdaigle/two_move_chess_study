@@ -1,0 +1,30 @@
+# Where things live on the nodes.
+twomove_root: /opt/twomove
+twomove_app_dir: "{{ twomove_root }}/app"
+twomove_venv: "{{ twomove_root }}/venv"
+twomove_results_dir: "{{ twomove_root }}/results"
+
+# Unix user the shard services run as (and who owns the tree).
+twomove_service_user: "{{ ansible_user | default('pi') }}"
+
+# The sweep campaign: one place to change what the whole cluster works on.
+# Queue and rationale: experiments/DISTRIBUTED.md. --out/--workers/--shard are
+# appended per node by the service unit; don't put them here.
+twomove_sweep_args: >-
+  --stage s2b --materials k_n_pawns,k_pawns8 --regimes ET --games 300 --nodes 12000
+twomove_shard_total: 4
+
+# Per-host defaults (override in inventory).
+twomove_slices: [0]
+twomove_workers: 1
+twomove_memory_max: ""
+
+# Service state knobs for sweep.yml:
+#   ansible-playbook sweep.yml                      -> (re)configure + start
+#   ansible-playbook sweep.yml -e twomove_sweep_state=stopped -> stop everything
+twomove_sweep_state: started
+twomove_sweep_enabled: true   # auto-resume after a power blip (runs are resumable)
+
+# Where collect.yml drops fetched results on YOUR machine (control node),
+# relative to this directory. Feed the parent dir to twomove.analysis.
+local_results_dir: "{{ playbook_dir }}/../../experiments/results/incoming"

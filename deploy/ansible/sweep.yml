@@ -1,0 +1,52 @@
+---
+# Configure and control the sweep campaign on all nodes.
+#
+#   ansible-playbook sweep.yml                                  # write env, start shards
+#   ansible-playbook sweep.yml -e twomove_sweep_state=stopped   # stop shards
+#   ansible-playbook sweep.yml -e twomove_sweep_state=restarted # apply a new campaign
+#
+# Change the campaign by editing twomove_sweep_args / twomove_shard_total in
+# group_vars/all.yml (or -e overrides), then run with state=restarted.
+# Runs are resumable: a restarted shard skips game indices already on disk.
+
+- name: Run sweep shards
+  hosts: pis
+  become: true
+
+  tasks:
+    - name: Write campaign environment file
+      ansible.builtin.template:
+        src: templates/twomove.env.j2
+        dest: /etc/default/twomove
+        mode: "0644"
+      register: envfile
+
+    - name: Reload systemd
+      ansible.builtin.systemd:
+        daemon_reload: true
+      when: envfile is changed
+      tags: [systemd]
+
+    - name: "{{ 'Stop' if twomove_sweep_state == 'stopped' else 'Start' }} shard services"
+      ansible.builtin.systemd:
+        name: "twomove-sweep@{{ item }}"
+        state: "{{ twomove_sweep_state }}"
+        enabled: "{{ twomove_sweep_enabled and twomove_sweep_state != 'stopped' }}"
+      loop: "{{ twomove_slices }}"
+      tags: [systemd]
+
+    - name: Show shard status
+      ansible.builtin.command: >-
+        systemctl show -p ActiveState,SubState,ExecMainStatus twomove-sweep@{{ item }}
+      loop: "{{ twomove_slices }}"
+      register: status
+      changed_when: false
+      tags: [systemd]
+
+    - name: Report
+      ansible.builtin.debug:
+        msg: "{{ item.item }}: {{ item.stdout | replace('\n', ' ') }}"
+      loop: "{{ status.results }}"
+      loop_control:
+        label: "twomove-sweep@{{ item.item }}"
+      tags: [systemd]

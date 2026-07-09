@@ -1,5 +1,10 @@
 # Running sweep shards on home hardware (Pi 4B+, Pi Zero 2W)
 
+> **Prefer the Ansible route**: `deploy/ansible/` automates everything below
+> (provisioning, the python-chess install workaround, systemd shard services,
+> result collection) idempotently from your local machine. This file remains as
+> the manual reference and explains the sharding model.
+
 Games are independent and seeded by game index, so distribution needs **no
 coordination**: each node plays the slice of game indices `index % N == i` and
 appends to its own JSONL file; analysis merges every `*.jsonl` it finds in a

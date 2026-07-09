@@ -13,8 +13,9 @@ while keeping the starting position recognizably chess-like?
 | `specs/001-two-move-balance/research.md` | Theory: prior art (Monster/Marseillais/Progressive chess), tempo-annuity & threat-parity analysis, hypotheses H1–H6, the ruleset parameter space |
 | `specs/001-two-move-balance/plan.md` | Architecture, engine design, sweep stages S0–S5, statistics, distributed (Raspberry Pi) mode |
 | `specs/001-two-move-balance/tasks.md` | Task breakdown and status |
-| `experiments/results/` | Committed pilot data (JSONL) and reports |
-| `experiments/DISTRIBUTED.md` | Running sweep shards on home machines / Pis |
+| `experiments/results/` | Committed pilot data (JSONL) and reports — findings in `REPORT.md` |
+| `experiments/DISTRIBUTED.md` | Sharding model + manual node setup reference |
+| `deploy/ansible/` | Idempotent Ansible deployment for home compute nodes (Pi cluster): deploy / sweep / collect playbooks |
 
 ## Quick start
 

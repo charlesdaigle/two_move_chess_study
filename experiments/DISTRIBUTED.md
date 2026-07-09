@@ -23,9 +23,9 @@ python3 -m unittest discover tests   # must pass before contributing data
 Give each node the same command with a different `--shard i/N`:
 
 ```bash
-# Pi 4B (4 workers), node 0 of 3:
-nohup python3 -m twomove.sweep --stage s2b --materials k_pawns6,monster4 \
-  --regimes KC --games 300 --nodes 12000 \
+# Pi 4B (4 workers), node 0 of 3 — the ET crossing bracket found by the pilot:
+nohup python3 -m twomove.sweep --stage s2b --materials k_n_pawns,k_pawns8 \
+  --regimes ET --games 300 --nodes 12000 \
   --out results-shard --workers 4 --shard 0/3 > sweep.log 2>&1 &
 
 # Pi Zero 2W #1 (memory-light: 1 worker), node 1 of 3:
@@ -60,14 +60,17 @@ python3 -m twomove.analysis merged --md merged/REPORT.md
 - Long runs: `nice -n 10` the process; use `tmux` or `systemd-run --user` if you
   want survivable sessions; check progress with `wc -l results-shard/*.jsonl`.
 
-## What to run on the cluster (suggested queue)
+## What to run on the cluster (queue, updated with pilot results)
 
-In priority order once the cloud pilot has bracketed the crossings:
+Pilot verdicts are in `experiments/results/REPORT.md`. In priority order:
 
-1. `s2b` confirmation at `--nodes 12000`, `--games 300` on the 2–3 bracketing rungs
-   per regime (this is the expensive, high-value stage).
-2. `s3` dampers (`nc2`/`dp2`) at the crossing rungs, `--games 100`.
-3. `s5` turn-order measurement at the balanced candidate, `--games 200` each order.
-4. Budget-sensitivity gate: rerun the balanced candidate at `--nodes 24000`,
-   `--games 100` (plan.md: if the score drifts >10 points, balance is
-   strength-sensitive and the drift direction is itself a finding).
+1. `s2b` confirmation: `--materials k_n_pawns,k_pawns8 --regimes ET --games 300
+   --nodes 12000` — certify the crossing (pilot: 0.562 / 0.531 at 3000 nodes).
+2. KC sensitivity: `--stage s2b --materials monster4,k_pawns3 --regimes KC
+   --games 100 --nodes 12000` — does "KC never balances" survive stronger defense?
+3. `s3` dampers at `--materials knights_pawns,bishops_pawns,no_q_rr --regimes ET
+   --games 100` — can nc2/dp2 balance *bigger*, more chess-like armies?
+4. `s5` turn order at whichever rung s2b certifies, `--games 200` each order.
+5. Budget-sensitivity gate: rerun the certified rung at `--nodes 24000`,
+   `--games 100` (plan.md: if the score drifts >10 points toward either side,
+   balance is strength-sensitive and the drift direction is itself a finding).

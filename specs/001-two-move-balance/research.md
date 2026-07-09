@@ -186,6 +186,16 @@ first" is a costless concession available for fine-tuning.
 
 Each hypothesis maps to a sweep stage in `plan.md` §Sweep Design.
 
+**Pilot verdicts (2026-07-09, 3000 nodes/half-move, 32 games/point — see
+`experiments/results/REPORT.md`)**: H1 confirmed (72/72 all regimes). H2 *refuted* —
+the KC ladder never crosses 50%; even K+3P scores 0.89, so king-capture semantics
+appear unbalanceable by material alone. H3 confirmed in direction but the ET crossing
+sits at **K+N+8P (0.562) / K+8P (0.531)**, far below the guessed band — the double
+move is worth even more than §2 estimated. H5 confirmed (median 25–29 rounds at the
+crossing, draws <10%). P3's knight-over-bishop potency confirmed dramatically
+(K+2N+8P 0.969 vs K+2B+8P 0.781 at equal nominal value, a non-monotonicity in the
+ladder). H4/H6 pending (S3/S5). All pending the 4× budget-sensitivity gate.
+
 ---
 
 ## 4. The ruleset parameter space (formal)

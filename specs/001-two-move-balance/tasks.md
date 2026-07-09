@@ -33,11 +33,14 @@ believed; pilot sweep before full-budget confirmation.
 ## Phase 4: Experiments
 - [x] T011 Run S0 gates; do not proceed until they pass.
 - [x] T012 Pilot S1 (H1 blowout) + S2 ladder at pilot budget; commit JSONL + report.
-- [ ] T013 S2b bisection at confirm budget on the crossing bracket.
-- [ ] T014 S3 damper sweep (NC2/DP2) near crossing; S4 period sweep; S5 turn order.
-- [ ] T015 Budget-sensitivity gate on any "balanced" rung (4× nodes, N=100).
-- [ ] T016 findings write-up `experiments/results/REPORT.md`; update research.md
-      hypotheses with verdicts; propose the candidate balanced ruleset(s).
+- [ ] T013 S2b confirmation at 12000 nodes on the ET crossing bracket
+      (`k_n_pawns`, `k_pawns8`) — Pi cluster queue item 1 (DISTRIBUTED.md).
+- [ ] T014 S3 damper sweep (NC2/DP2) at `knights_pawns`/`bishops_pawns`/`no_q_rr`
+      under ET; S4 period sweep; S5 turn order at the certified rung.
+- [ ] T015 Budget-sensitivity gate: KC bottom rungs + ET crossing at 4× nodes.
+- [x] T016 pilot findings write-up `experiments/results/REPORT.md`; research.md
+      hypothesis verdicts updated (H1✓ H2✗ H3✓dir H5✓ P3✓; H4/H6 pending).
+      Candidate balanced rulesets: **ET + K+N+8P (0.562)**, **ET + K+8P (0.531)**.
 
 ## Backlog / upgrade levers
 - [ ] T017 Eval upgrade: single-mover king threat-exposure term, double-mover

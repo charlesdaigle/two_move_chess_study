@@ -58,6 +58,13 @@ MATERIAL_SCHEMES: Dict[str, Dict[str, str]] = {
     "k_pawns6": _army("", "bcdefg"),
     "monster4": _army("", "cdef"),
     "k_pawns3": _army("", "def"),
+    # Interpolation rungs for ladder bisection near the ET crossing
+    # (strategy.md); pawns thin flank-inward to stay "logical".
+    "k_r_pawns": {**{"a1": "R", "e1": "K"}, **_PAWNS},
+    "k_b_pawns": {**{"c1": "B", "e1": "K"}, **_PAWNS},
+    "k_n_pawns7": {**{"b1": "N", "e1": "K"}, **{f + "2": "P" for f in "bcdefgh"}},
+    "k_pawns7": _army("", "bcdefgh"),
+    "k_pawns5": _army("", "cdefg"),
 }
 
 # Ladder ordered by double-move potency (research.md P3), strongest first.

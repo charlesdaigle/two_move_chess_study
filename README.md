@@ -15,7 +15,10 @@ while keeping the starting position recognizably chess-like?
 | `specs/001-two-move-balance/tasks.md` | Task breakdown and status |
 | `experiments/results/` | Committed pilot data (JSONL) and reports — findings in `REPORT.md` |
 | `experiments/DISTRIBUTED.md` | Sharding model + manual node setup reference |
-| `deploy/ansible/` | Idempotent Ansible deployment for home compute nodes (Pi cluster): deploy / sweep / collect playbooks |
+| `specs/001-two-move-balance/strategy.md` | Adaptive compute policy: T0–T4 escalation ladder, strike criteria, ladder bisection |
+| `deploy/AUTOMATION.md` | **Full-auto GitOps loop**: repo as message bus, coralreef agent reconciles the campaign queue 24/7 |
+| `experiments/queue/campaigns.json` | The fleet's live work order (edited from chat, executed by the agent) |
+| `deploy/ansible/` | Idempotent Ansible deployment for home compute nodes (Pi cluster): deploy / sweep / collect / queue-sync / agent playbooks |
 | `deploy/apptainer/` | Optional HPC-style container path: validated SIF definition + assessment of when it beats the venv |
 
 ## Quick start

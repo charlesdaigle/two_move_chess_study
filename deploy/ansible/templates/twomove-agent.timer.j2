@@ -1,0 +1,11 @@
+[Unit]
+Description=Run the two-move chess GitOps agent every 15 minutes
+# {{ ansible_managed }}
+
+[Timer]
+OnCalendar=*:0/15
+Persistent=true
+RandomizedDelaySec=60
+
+[Install]
+WantedBy=timers.target

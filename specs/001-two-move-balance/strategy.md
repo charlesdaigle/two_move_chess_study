@@ -15,13 +15,17 @@ the "binary search" is over sample size and over the material ladder simultaneou
 
 ## The escalation ladder
 
-| Tier | Games | Nodes | Runs on | Purpose |
-|---|---|---|---|---|
-| T0 screen | 32 | 3k | coralreef alone | triage a new point (~2–5 Pi4-hours) |
-| T1 double | 64 → 128 | 3k | coralreef alone | separate CI from the band |
-| T2 strike | 256 | 12k | **all nodes, sharded** | strength-stable estimate |
-| T3 certify | 512 | 12k | all nodes, sharded | τ=0.05 certification (CI ⊆ [0.45,0.55]-ish) |
-| T4 gate | 128 | 24k | all nodes, sharded | strength-drift check on certified points |
+| Tier | Games | Nodes | Purpose |
+|---|---|---|---|
+| T0 screen | 32 | 3k | triage a new point (hours, not days) |
+| T1 double | 64 → 128 | 3k | separate CI from the band |
+| T2 strike | 256 | 12k | strength-stable estimate |
+| T3 certify | 512 | 12k | τ=0.05 certification (CI ⊆ [0.45,0.55]-ish) |
+| T4 gate | 128 | 24k | strength-drift check on certified points |
+
+All tiers shard fleet-wide (one campaign runs at a time, so idling the Zeros
+during screens buys nothing); tiers at equal node budget share game records, so
+escalating from 32 to 64 games plays only the 32 new indices.
 
 **Escalation rule** (mechanical, per point, after each tier completes):
 - **Decided** — Wilson 95% CI entirely outside [0.40, 0.60]: STOP, record verdict.

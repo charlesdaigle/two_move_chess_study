@@ -30,15 +30,16 @@
       loop:
         - "{{ twomove_root }}"
         - "{{ twomove_app_dir }}"
+        - "{{ twomove_app_dir }}/experiments"
         - "{{ twomove_results_dir }}"
 
-    - name: Copy study code (twomove package + tests)
+    - name: Copy study code (twomove package + tests + campaign queue)
       ansible.builtin.copy:
         src: "{{ playbook_dir }}/../../{{ item }}/"
         dest: "{{ twomove_app_dir }}/{{ item }}/"
         owner: "{{ twomove_service_user }}"
         mode: "preserve"
-      loop: [twomove, tests]
+      loop: [twomove, tests, experiments/queue]
 
     - name: Record deployed git revision
       ansible.builtin.copy:
@@ -111,11 +112,12 @@
       become: true
       changed_when: false
 
-    - name: Install shard service unit
+    - name: Install worker service units (manual sweep + queue modes)
       ansible.builtin.template:
-        src: templates/twomove-sweep@.service.j2
-        dest: /etc/systemd/system/twomove-sweep@.service
+        src: "templates/{{ item }}.j2"
+        dest: "/etc/systemd/system/{{ item }}"
         mode: "0644"
+      loop: ["twomove-sweep@.service", "twomove-queue@.service"]
       notify: daemon-reload
       tags: [systemd]
 

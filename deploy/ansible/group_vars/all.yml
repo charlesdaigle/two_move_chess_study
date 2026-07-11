@@ -4,8 +4,15 @@ twomove_app_dir: "{{ twomove_root }}/app"
 twomove_venv: "{{ twomove_root }}/venv"
 twomove_results_dir: "{{ twomove_root }}/results"
 
-# Unix user the shard services run as (and who owns the tree).
-twomove_service_user: "{{ ansible_user | default('pi') }}"
+# Unix user the shard services run as (and who owns the tree). For
+# connection=local hosts (the controller) this falls back to whoever runs
+# ansible.
+twomove_service_user: "{{ ansible_user | default(lookup('env', 'USER')) }}"
+
+# Full-auto (GitOps) mode: the repo checkout on the controller and the branch
+# the fleet tracks/pushes.
+twomove_repo_dir: "{{ playbook_dir | dirname | dirname }}"
+twomove_branch: claude/two-move-chess-balance-mku5j2
 
 # The sweep campaign: one place to change what the whole cluster works on.
 # Queue and rationale: experiments/DISTRIBUTED.md. --out/--workers/--shard are

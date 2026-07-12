@@ -30,9 +30,9 @@
       tags: [keys]
 
     # --- memory: zram in, SD-card swapfile out ------------------------------
-    - name: Install zram + unattended-upgrades
+    - name: Install zram + unattended-upgrades + mDNS responder
       ansible.builtin.apt:
-        name: [zram-tools, unattended-upgrades]
+        name: [zram-tools, unattended-upgrades, avahi-daemon]
         state: present
         update_cache: true
         cache_valid_time: 86400

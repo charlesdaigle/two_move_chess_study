@@ -55,24 +55,34 @@ non-event. If you prefer key-only nodes, disable password auth *after* the
 fleet keys are installed; the SD-card edit remains the recovery of last resort
 either way.
 
-## Fixed IPs via MAC address (do this before anything else)
+## Reaching the nodes (pick by what you control)
 
-Reserve an IP for each device **by MAC address** in the router's DHCP
-settings. This is the keystone of the setup: reservations bind to hardware,
-so they survive reflashes, hostname mistakes, and mDNS/router-DNS roulette
-(the node1/node2 confusion seen earlier) — `inventory.ini` then pins
-`ansible_host=` to those IPs and never lies.
+The one identifier that never changes is each node's **MAC address** (Zeros:
+the Wi-Fi interface `wlan0`; coralreef: ethernet). Record them in
+`inventory.ini` comments the first time you're on each node (`ip link show
+wlan0`). Then, in order of preference:
 
-- Get each MAC without booting anything: it's printed by `ip link` once up,
-  but easier — boot each freshly flashed card once and read the router's
-  client list, or check the Imager-set hostname there. The Zeros' MAC of
-  record is the **Wi-Fi** interface (`wlan0`); coralreef's is ethernet.
-- Suggested: keep the current addresses (node1 = 10.0.0.246,
-  node2 = 10.0.0.119, plus coralreef's) so the committed inventory stays
-  valid.
-- Reservation beats static-IP-on-device: one place to manage, no per-node
-  netplan/dhcpcd edits, and a reflashed card comes back on the same address
-  with zero configuration.
+- **A. Router admin access → DHCP reservation by MAC.** The gold standard:
+  survives reflashes and lease churn, one place to manage. Pin the reserved
+  IPs as `ansible_host=`. (Check your ISP's phone app — many expose "reserve
+  IP" even when the router web UI is locked down.)
+- **B. No router access → mDNS `.local` names (the committed default).**
+  Pi OS ships avahi enabled, so a freshly flashed node announces
+  `node1.local` immediately; `provision.yml` also pins avahi installed.
+  Names follow the device across lease changes with zero configuration.
+  This replaces ad-hoc IP scanning entirely.
+- **C. Last resort → static IP on the device.** Without knowing the router's
+  DHCP pool bounds you risk address collisions, so prefer B; if mDNS proves
+  flaky on your Wi-Fi, ask for a static-IP task in provision.yml.
+
+**Finding a node whose name you don't know** (from coralreef, wired):
+
+```bash
+ping -c1 node1.local                      # usually just works — try this first
+sudo apt install -y arp-scan
+sudo arp-scan --localnet                  # lists IP + MAC + vendor;
+                                          # Raspberry Pis are labeled by vendor
+```
 
 **Reflash gotcha — stale host keys**: a reflashed node presents a new SSH
 host key, so the laptop and coralreef will refuse with "REMOTE HOST

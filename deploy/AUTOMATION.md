@@ -26,12 +26,16 @@ history is the git history.
 
 ## One-time setup (you, on coralreef — ~10 minutes)
 
+Fresh SD cards? Follow `deploy/PROVISIONING.md` first (Imager settings, key
+scheme, OS choice), then:
+
 ```bash
 # 0. prerequisites
 sudo apt install -y ansible git python3-venv
 
-# 1. deploy key (write access, this repo only)
-ssh-keygen -t ed25519 -f ~/.ssh/twomove_deploy -N "" -C "twomove-agent@coralreef"
+# 1. deploy key (write access, this repo only). All keygen lines are guarded
+#    and purpose-named: they can never overwrite an existing key.
+[ -f ~/.ssh/twomove_deploy ] || ssh-keygen -t ed25519 -f ~/.ssh/twomove_deploy -N "" -C "twomove-agent@coralreef"
 cat ~/.ssh/twomove_deploy.pub
 #    -> GitHub repo -> Settings -> Deploy keys -> Add key, CHECK "Allow write access"
 cat >> ~/.ssh/config <<'EOF'
@@ -45,15 +49,19 @@ cd ~/two_move_chess_study
 git remote set-url origin git@github.com:charlesdaigle/two_move_chess_study.git
 git fetch origin && git checkout claude/two-move-chess-balance-mku5j2
 
-# 3. ssh keys to the nodes (skip if already in place)
-ssh-keygen -t ed25519 -f ~/.ssh/id_ed25519 -N "" 2>/dev/null || true
-ssh-copy-id moos-node@node1 && ssh-copy-id moos-node@node2
+# 3. fleet key -> committed to deploy/keys/ (public half only)
+[ -f ~/.ssh/twomove_fleet ] || ssh-keygen -t ed25519 -f ~/.ssh/twomove_fleet -N "" -C "coralreef fleet key"
+cp ~/.ssh/twomove_fleet.pub deploy/keys/coralreef.pub
+git add deploy/keys && git commit -m "coralreef fleet public key" && git push
+# (nodes flashed per PROVISIONING.md already trust this key — it was pasted
+#  at flash time alongside the laptop's; ssh-copy-id is no longer used)
 
 # 4. inventory + fleet up
 cd deploy/ansible
-cp inventory.example.ini inventory.ini      # already matches your hostnames
+cp inventory.example.ini inventory.ini      # set the DHCP-reserved IPs
 ansible pis -m ping                         # all three green?
-ansible-playbook deploy.yml                 # provision + tests on every node
+ansible-playbook provision.yml              # keys, zram, watchdog, wifi, logs
+ansible-playbook deploy.yml                 # code + venv + tests on every node
 ansible-playbook agent.yml                  # install the 15-min agent timer
 ```
 

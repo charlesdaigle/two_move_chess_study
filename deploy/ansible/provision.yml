@@ -1,0 +1,146 @@
+---
+# One-time node hardening + 24/7 optimizations (idempotent; rerun anytime).
+# Rationale for each block: deploy/PROVISIONING.md. Run before deploy.yml on a
+# freshly flashed fleet.
+
+- name: Provision fleet nodes for 24/7 duty
+  hosts: pis
+  become: true
+
+  tasks:
+    # --- trust: every key in deploy/keys/*.pub on every node ----------------
+    - name: Ensure .ssh directory
+      ansible.builtin.file:
+        path: "/home/{{ twomove_service_user }}/.ssh"
+        state: directory
+        owner: "{{ twomove_service_user }}"
+        mode: "0700"
+      tags: [keys]
+
+    - name: Install fleet public keys (additive)
+      ansible.builtin.lineinfile:
+        path: "/home/{{ twomove_service_user }}/.ssh/authorized_keys"
+        line: "{{ lookup('ansible.builtin.file', item) }}"
+        create: true
+        owner: "{{ twomove_service_user }}"
+        mode: "0600"
+      loop: "{{ query('ansible.builtin.fileglob', playbook_dir ~ '/../keys/*.pub') }}"
+      loop_control:
+        label: "{{ item | basename }}"
+      tags: [keys]
+
+    # --- memory: zram in, SD-card swapfile out ------------------------------
+    - name: Install zram + unattended-upgrades
+      ansible.builtin.apt:
+        name: [zram-tools, unattended-upgrades]
+        state: present
+        update_cache: true
+        cache_valid_time: 86400
+      tags: [packages]
+
+    - name: Configure zram (zstd, half of RAM)
+      ansible.builtin.copy:
+        dest: /etc/default/zramswap
+        mode: "0644"
+        content: |
+          # Managed by ansible (deploy/PROVISIONING.md)
+          ALGO=zstd
+          PERCENT=50
+      notify: restart zramswap
+      tags: [packages]
+
+    - name: Collect service facts
+      ansible.builtin.service_facts:
+      tags: [packages]
+
+    - name: Disable SD-card swapfile (dphys-swapfile)
+      ansible.builtin.systemd:
+        name: dphys-swapfile
+        state: stopped
+        enabled: false
+      when: "'dphys-swapfile.service' in ansible_facts.services"
+      tags: [packages]
+
+    - name: Enable periodic unattended upgrades
+      ansible.builtin.copy:
+        dest: /etc/apt/apt.conf.d/20auto-upgrades
+        mode: "0644"
+        content: |
+          APT::Periodic::Update-Package-Lists "1";
+          APT::Periodic::Unattended-Upgrade "1";
+      tags: [packages]
+
+    # --- resilience: hardware watchdog, capped logs -------------------------
+    - name: Ensure systemd drop-in directories exist
+      ansible.builtin.file:
+        path: "{{ item }}"
+        state: directory
+        mode: "0755"
+      loop: [/etc/systemd/system.conf.d, /etc/systemd/journald.conf.d]
+      tags: [watchdog, journal]
+
+    - name: Enable hardware watchdog (kernel hang -> reboot -> workers resume)
+      ansible.builtin.copy:
+        dest: /etc/systemd/system.conf.d/10-watchdog.conf
+        mode: "0644"
+        content: |
+          [Manager]
+          RuntimeWatchdogSec=15
+      notify: reexec systemd
+      tags: [watchdog]
+
+    - name: Cap journald disk usage
+      ansible.builtin.copy:
+        dest: /etc/systemd/journald.conf.d/10-cap.conf
+        mode: "0644"
+        content: |
+          [Journal]
+          SystemMaxUse=32M
+      notify: restart journald
+      tags: [journal]
+
+    # --- Wi-Fi power save off (headless Zero flakiness fix) -----------------
+    - name: Install wifi-powersave-off unit
+      ansible.builtin.copy:
+        dest: /etc/systemd/system/wifi-powersave-off.service
+        mode: "0644"
+        content: |
+          [Unit]
+          Description=Disable WiFi power management
+          After=network.target
+
+          [Service]
+          Type=oneshot
+          ExecStart=/usr/sbin/iw dev wlan0 set power_save off
+          RemainAfterExit=yes
+
+          [Install]
+          WantedBy=multi-user.target
+      when: "'wlan0' in ansible_facts.interfaces"
+      tags: [wifi]
+
+    - name: Enable wifi-powersave-off
+      ansible.builtin.systemd:
+        name: wifi-powersave-off
+        daemon_reload: true
+        state: started
+        enabled: true
+      when: "'wlan0' in ansible_facts.interfaces"
+      tags: [wifi, systemd]
+
+  handlers:
+    - name: restart zramswap
+      ansible.builtin.systemd:
+        name: zramswap
+        state: restarted
+      tags: [packages]
+
+    - name: reexec systemd
+      ansible.builtin.command: systemctl daemon-reexec
+      tags: [watchdog]
+
+    - name: restart journald
+      ansible.builtin.systemd:
+        name: systemd-journald
+        state: restarted
+      tags: [journal]

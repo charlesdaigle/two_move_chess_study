@@ -1,0 +1,22 @@
+[Unit]
+Description=Two-move chess queue worker, shard slice %i
+After=network.target
+# {{ ansible_managed }}
+
+[Service]
+Type=simple
+User={{ twomove_service_user }}
+EnvironmentFile=/etc/default/twomove
+WorkingDirectory={{ twomove_app_dir }}
+ExecStart={{ twomove_venv }}/bin/python -m twomove.queue run --file {{ twomove_app_dir }}/experiments/queue/campaigns.json --out ${RESULTS_DIR} --workers ${WORKERS} --slice %i
+Nice=10
+{% if twomove_memory_max %}
+MemoryMax={{ twomove_memory_max }}
+{% endif %}
+# Slices resume (played game indices are skipped), so failure restarts are free;
+# clean exit 0 = slice complete or not part of the active campaign.
+Restart=on-failure
+RestartSec=60
+
+[Install]
+WantedBy=multi-user.target

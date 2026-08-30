@@ -1,0 +1,24 @@
+[Unit]
+Description=Two-move chess sweep shard %i of {{ twomove_shard_total }}
+After=network.target
+# {{ ansible_managed }}
+
+[Service]
+Type=simple
+User={{ twomove_service_user }}
+EnvironmentFile=/etc/default/twomove
+WorkingDirectory={{ twomove_app_dir }}
+# $SWEEP_ARGS unbraced on purpose: systemd word-splits it into arguments.
+ExecStart={{ twomove_venv }}/bin/python -m twomove.sweep $SWEEP_ARGS --out ${RESULTS_DIR} --workers ${WORKERS} --shard %i/${SHARD_TOTAL}
+Nice=10
+{% if twomove_memory_max %}
+MemoryMax={{ twomove_memory_max }}
+{% endif %}
+# Slices are resumable (played game indices are skipped on start), so crash
+# recovery is free: restart on failure (OOM-kill, transient error), but a
+# clean exit 0 = slice complete, no restart loop.
+Restart=on-failure
+RestartSec=60
+
+[Install]
+WantedBy=multi-user.target

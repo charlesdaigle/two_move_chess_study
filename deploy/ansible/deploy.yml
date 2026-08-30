@@ -1,0 +1,128 @@
+---
+# Provision nodes: OS packages, code, Python env, tests, systemd unit.
+# Idempotent: a second run reports changed=0 (aside from a campaign you edited).
+#
+#   ansible-playbook deploy.yml
+#
+# The code deployed is the checkout this playbook lives in (no GitHub access
+# needed from the nodes).
+
+- name: Deploy two-move chess study to compute nodes
+  hosts: pis
+  become: true
+
+  tasks:
+    - name: Install OS packages
+      ansible.builtin.apt:
+        name: [python3, python3-venv, python3-pip]
+        state: present
+        update_cache: true
+        cache_valid_time: 86400
+      when: ansible_facts.os_family == 'Debian'
+      tags: [packages]
+
+    - name: Create directory tree
+      ansible.builtin.file:
+        path: "{{ item }}"
+        state: directory
+        owner: "{{ twomove_service_user }}"
+        mode: "0755"
+      loop:
+        - "{{ twomove_root }}"
+        - "{{ twomove_app_dir }}"
+        - "{{ twomove_app_dir }}/experiments"
+        - "{{ twomove_results_dir }}"
+
+    - name: Copy study code (twomove package + tests + campaign queue)
+      ansible.builtin.copy:
+        src: "{{ playbook_dir }}/../../{{ item }}/"
+        dest: "{{ twomove_app_dir }}/{{ item }}/"
+        owner: "{{ twomove_service_user }}"
+        mode: "preserve"
+      loop: [twomove, tests, experiments/queue]
+
+    - name: Record deployed git revision
+      ansible.builtin.copy:
+        content: "{{ lookup('ansible.builtin.pipe',
+                     'git -C ' ~ playbook_dir ~ ' rev-parse HEAD') }}\n"
+        dest: "{{ twomove_app_dir }}/VERSION"
+        owner: "{{ twomove_service_user }}"
+        mode: "0644"
+
+    - name: Create virtualenv
+      ansible.builtin.command: "python3 -m venv {{ twomove_venv }}"
+      args:
+        creates: "{{ twomove_venv }}/bin/python"
+
+    - name: Check whether python-chess is importable
+      ansible.builtin.command: "{{ twomove_venv }}/bin/python -c 'import chess'"
+      register: chess_probe
+      failed_when: false
+      changed_when: false
+
+    - name: Install python-chess (normal pip path)
+      ansible.builtin.pip:
+        name: chess
+        virtualenv: "{{ twomove_venv }}"
+      register: chess_pip
+      failed_when: false
+      when: chess_probe.rc != 0
+
+    - name: Re-check python-chess import
+      ansible.builtin.command: "{{ twomove_venv }}/bin/python -c 'import chess'"
+      register: chess_probe2
+      failed_when: false
+      changed_when: false
+      when: chess_probe.rc != 0
+
+    # Debian's patched setuptools can fail the sdist wheel build with
+    # "AttributeError: install_layout"; vendor the pure-Python package instead.
+    - name: Fallback - vendor python-chess from the sdist
+      ansible.builtin.shell: |
+        set -euo pipefail
+        tmp=$(mktemp -d)
+        trap 'rm -rf "$tmp"' EXIT
+        {{ twomove_venv }}/bin/pip download chess --no-deps --no-binary :all: -d "$tmp"
+        tar -xzf "$tmp"/chess-*.tar.gz -C "$tmp"
+        site=$({{ twomove_venv }}/bin/python -c "import sysconfig; print(sysconfig.get_paths()['purelib'])")
+        cp -r "$tmp"/chess-*/chess "$site/"
+      args:
+        executable: /bin/bash
+      when: chess_probe.rc != 0 and (chess_probe2.rc | default(1)) != 0
+
+    - name: Assert python-chess works
+      ansible.builtin.command: >-
+        {{ twomove_venv }}/bin/python -c "import chess; chess.Board()"
+      changed_when: false
+
+    - name: Fix venv ownership
+      ansible.builtin.file:
+        path: "{{ twomove_venv }}"
+        owner: "{{ twomove_service_user }}"
+        recurse: true
+      changed_when: false   # recursive chown re-reports; ownership is enforced, not tracked
+
+    - name: Run the test suite on the node
+      ansible.builtin.command: "{{ twomove_venv }}/bin/python -m unittest discover tests"
+      args:
+        chdir: "{{ twomove_app_dir }}"
+      environment:
+        PYTHONDONTWRITEBYTECODE: "1"
+      become_user: "{{ twomove_service_user }}"
+      become: true
+      changed_when: false
+
+    - name: Install worker service units (manual sweep + queue modes)
+      ansible.builtin.template:
+        src: "templates/{{ item }}.j2"
+        dest: "/etc/systemd/system/{{ item }}"
+        mode: "0644"
+      loop: ["twomove-sweep@.service", "twomove-queue@.service"]
+      notify: daemon-reload
+      tags: [systemd]
+
+  handlers:
+    - name: daemon-reload
+      ansible.builtin.systemd:
+        daemon_reload: true
+      tags: [systemd]

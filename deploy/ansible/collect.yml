@@ -1,0 +1,36 @@
+---
+# Pull every node's JSONL shards back to the control machine, then analyze:
+#
+#   ansible-playbook collect.yml
+#   python3 -m twomove.analysis experiments/results/incoming --md incoming/REPORT.md
+#
+# Shards merge by mere co-location in one directory tree (analysis globs *.jsonl
+# recursively per directory you point it at; fetch flattens per host below).
+
+- name: Collect sweep results
+  hosts: pis
+
+  tasks:
+    - name: Find result shards
+      ansible.builtin.find:
+        paths: "{{ twomove_results_dir }}"
+        patterns: "*.jsonl"
+      register: shards
+
+    - name: Fetch shards to control machine
+      ansible.builtin.fetch:
+        src: "{{ item.path }}"
+        dest: "{{ local_results_dir }}/{{ inventory_hostname }}-{{ item.path | basename }}"
+        flat: true
+      loop: "{{ shards.files }}"
+      loop_control:
+        label: "{{ item.path | basename }}"
+
+    - name: Count games per node
+      ansible.builtin.shell: "cat {{ twomove_results_dir }}/*.jsonl 2>/dev/null | wc -l"
+      register: count
+      changed_when: false
+
+    - name: Report
+      ansible.builtin.debug:
+        msg: "{{ inventory_hostname }}: {{ count.stdout }} games recorded"

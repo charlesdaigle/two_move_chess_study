@@ -1,0 +1,39 @@
+---
+# Install the GitOps agent on the controller (coralreef). One-time prereqs on
+# your side (deploy/AUTOMATION.md): deploy key with write access, ansible on
+# coralreef, SSH keys from coralreef to the nodes.
+
+- name: Install GitOps agent on the controller
+  hosts: controller
+  become: true
+
+  tasks:
+    - name: Agent git identity (commits as the agent)
+      ansible.builtin.command: "git config --global {{ item.k }} '{{ item.v }}'"
+      loop:
+        - {k: user.name, v: "twomove-agent ({{ inventory_hostname }})"}
+        - {k: user.email, v: "twomove-agent@{{ inventory_hostname }}.local"}
+      become_user: "{{ twomove_service_user }}"
+      changed_when: false
+
+    - name: Install agent script
+      ansible.builtin.template:
+        src: templates/twomove-agent.sh.j2
+        dest: /usr/local/bin/twomove-agent
+        mode: "0755"
+
+    - name: Install agent service + timer
+      ansible.builtin.template:
+        src: "templates/twomove-agent.{{ item }}.j2"
+        dest: "/etc/systemd/system/twomove-agent.{{ item }}"
+        mode: "0644"
+      loop: [service, timer]
+      tags: [systemd]
+
+    - name: Enable and start the timer
+      ansible.builtin.systemd:
+        name: twomove-agent.timer
+        daemon_reload: true
+        state: started
+        enabled: true
+      tags: [systemd]

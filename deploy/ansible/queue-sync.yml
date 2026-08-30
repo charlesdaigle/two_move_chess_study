@@ -1,0 +1,24 @@
+---
+# Push the current campaigns.json to every node and (re)start the queue
+# workers. Invoked by the coralreef agent whenever the queue changes; safe to
+# run by hand. Restarts are free: slices resume from their shard files.
+
+- name: Sync campaign queue and restart workers
+  hosts: pis
+  become: true
+
+  tasks:
+    - name: Copy campaigns.json
+      ansible.builtin.copy:
+        src: "{{ playbook_dir }}/../../experiments/queue/campaigns.json"
+        dest: "{{ twomove_app_dir }}/experiments/queue/campaigns.json"
+        owner: "{{ twomove_service_user }}"
+        mode: "0644"
+
+    - name: Restart queue workers
+      ansible.builtin.systemd:
+        name: "twomove-queue@{{ item }}"
+        state: restarted
+        enabled: true
+      loop: "{{ twomove_slices }}"
+      tags: [systemd]

@@ -1,0 +1,51 @@
+{
+ "updated": "2026-07-11T00:00:00+00:00",
+ "campaigns": [
+  {
+   "id": "screen-001",
+   "tier": "T0",
+   "games": 32,
+   "nodes": 3000,
+   "shard_total": 4,
+   "status": "pending",
+   "note": "strategy.md beginning-phase frontier: new bisection rungs, damper grid, turn order, doubling period",
+   "points": [
+    {"material": "k_r_pawns", "regime": "ET"},
+    {"material": "k_b_pawns", "regime": "ET"},
+    {"material": "k_n_pawns7", "regime": "ET"},
+    {"material": "k_pawns7", "regime": "ET"},
+    {"material": "k_pawns5", "regime": "ET"},
+    {"material": "knights_pawns", "regime": "ET", "nc2": true},
+    {"material": "knights_pawns", "regime": "ET", "dp2": true},
+    {"material": "knights_pawns", "regime": "ET", "nc2": true, "dp2": true},
+    {"material": "bishops_pawns", "regime": "ET", "nc2": true},
+    {"material": "bishops_pawns", "regime": "ET", "dp2": true},
+    {"material": "bishops_pawns", "regime": "ET", "nc2": true, "dp2": true},
+    {"material": "no_q_rr", "regime": "ET", "nc2": true},
+    {"material": "no_q_rr", "regime": "ET", "dp2": true},
+    {"material": "no_q_rr", "regime": "ET", "nc2": true, "dp2": true},
+    {"material": "k_n_pawns", "regime": "ET", "first": "W", "alternate_first": false},
+    {"material": "k_n_pawns", "regime": "ET", "first": "B", "alternate_first": false},
+    {"material": "k_pawns8", "regime": "ET", "first": "W", "alternate_first": false},
+    {"material": "k_pawns8", "regime": "ET", "first": "B", "alternate_first": false},
+    {"material": "no_q_rr", "regime": "ET", "k": 2},
+    {"material": "knights_pawns", "regime": "ET", "k": 2}
+   ],
+   "verdicts": {}
+  },
+  {
+   "id": "kc-sens-001",
+   "tier": "T2",
+   "games": 256,
+   "nodes": 12000,
+   "shard_total": 4,
+   "status": "pending",
+   "note": "pre-registered strike (hypothesis leverage): does 'KC unbalanceable by material' survive 4x engine strength?",
+   "points": [
+    {"material": "monster4", "regime": "KC"},
+    {"material": "k_pawns3", "regime": "KC"}
+   ],
+   "verdicts": {}
+  }
+ ]
+}

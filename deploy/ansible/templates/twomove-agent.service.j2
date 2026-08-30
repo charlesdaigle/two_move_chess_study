@@ -1,0 +1,10 @@
+[Unit]
+Description=Two-move chess GitOps agent (queue reconcile + result collection)
+After=network-online.target
+# {{ ansible_managed }}
+
+[Service]
+Type=oneshot
+User={{ twomove_service_user }}
+ExecStart=/usr/local/bin/twomove-agent
+Nice=15

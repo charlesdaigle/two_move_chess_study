@@ -1,0 +1,51 @@
+#!/bin/bash
+# {{ ansible_managed }} — the coralreef GitOps agent (deploy/AUTOMATION.md).
+# Every tick: pull -> self-update fleet if code changed -> collect results ->
+# reconcile queue (escalation policy) -> sync+restart workers if queue changed
+# -> commit/push results and queue.
+set -u
+REPO="{{ twomove_repo_dir }}"
+ADIR="$REPO/deploy/ansible"
+PY="{{ twomove_venv }}/bin/python"
+BRANCH="{{ twomove_branch }}"
+cd "$REPO" || exit 1
+
+OLD_REV=$(git rev-parse HEAD)
+if ! git pull --rebase --autostash --quiet; then
+    echo "git pull failed; retrying next tick"
+    exit 0
+fi
+
+# Fleet self-update when engine/rules/deploy code changed upstream
+if ! git diff --quiet "$OLD_REV" HEAD -- twomove tests deploy 2>/dev/null; then
+    echo "code changed upstream -> redeploying fleet"
+    ansible-playbook -i "$ADIR/inventory.ini" "$ADIR/deploy.yml" > /tmp/twomove-deploy.log 2>&1 \
+        || { echo "DEPLOY FAILED, see /tmp/twomove-deploy.log"; exit 0; }
+fi
+
+# Pull newest shard records from all nodes into the repo
+ansible-playbook -i "$ADIR/inventory.ini" "$ADIR/collect.yml" \
+    -e local_results_dir="$REPO/experiments/results/auto" > /dev/null 2>&1 || true
+
+OUT=$("$PY" -m twomove.queue reconcile \
+      --file experiments/queue/campaigns.json \
+      --results experiments/results/auto 2>&1)
+echo "$OUT"
+
+if echo "$OUT" | grep -q "^CHANGED"; then
+    SUMMARY=$(echo "$OUT" | grep -E "^(COMPLETED|SPAWNED|ACTIVATED)" | tr '\n' '; ')
+    git add experiments/queue/campaigns.json experiments/results/auto
+    git commit -q -m "agent: ${SUMMARY:-queue update}" || true
+    ansible-playbook -i "$ADIR/inventory.ini" "$ADIR/queue-sync.yml" > /dev/null 2>&1 \
+        || echo "queue-sync failed; workers keep the previous campaign until next tick"
+elif [ -n "$(git status --porcelain experiments/results/auto)" ]; then
+    # periodic partial-results checkpoint (~6h)
+    LAST=$(git log -1 --format=%ct -- experiments/results/auto 2>/dev/null)
+    NOW=$(date +%s)
+    if [ $((NOW - ${LAST:-0})) -gt 21600 ]; then
+        git add experiments/results/auto
+        git commit -q -m "agent: partial results checkpoint" || true
+    fi
+fi
+
+git push -q origin "$BRANCH" || echo "push failed; retrying next tick"

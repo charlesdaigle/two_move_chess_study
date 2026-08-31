@@ -65,11 +65,28 @@ MATERIAL_SCHEMES: Dict[str, Dict[str, str]] = {
     "k_n_pawns7": {**{"b1": "N", "e1": "K"}, **{f + "2": "P" for f in "bcdefgh"}},
     "k_pawns7": _army("", "bcdefgh"),
     "k_pawns5": _army("", "cdefg"),
+    # Perturbations of the full army: single/small removals from standard chess,
+    # for the "evolve regular chess, one knob at a time" study (2026-08-31).
+    # Kingside minors/rook removed first so the array stays readable.
+    "full_p7": {**_FULL_BACK, **{f + "2": "P" for f in "bcdefgh"}},
+    "full_p6": {**_FULL_BACK, **{f + "2": "P" for f in "bcdefg"}},
+    "no_n": {**{sq: p for sq, p in _FULL_BACK.items() if sq != "g1"}, **_PAWNS},
+    "no_b": {**{sq: p for sq, p in _FULL_BACK.items() if sq != "f1"}, **_PAWNS},
+    "no_r": {**{sq: p for sq, p in _FULL_BACK.items() if sq != "h1"}, **_PAWNS},
+    "no_nn": _army("QRB", "abcdefgh"),
+    "no_bb": _army("QRN", "abcdefgh"),
+    "no_rr": _army("QNB", "abcdefgh"),
+    "no_q_n": {**{sq: p for sq, p in _FULL_BACK.items() if p != "Q" and sq != "g1"}, **_PAWNS},
+    "no_q_b": {**{sq: p for sq, p in _FULL_BACK.items() if p != "Q" and sq != "f1"}, **_PAWNS},
+    "no_q_nn": _army("RB", "abcdefgh"),
+    "no_q_bb": _army("RN", "abcdefgh"),
 }
 
 # Ladder ordered by double-move potency (research.md P3), strongest first.
 LADDER = [
-    "full", "no_q", "no_q_r", "no_q_rr", "bishops_pawns", "knights_pawns",
+    "full", "full_p7", "full_p6", "no_n", "no_b", "no_r", "no_nn", "no_bb",
+    "no_rr", "no_q", "no_q_n", "no_q_b", "no_q_nn", "no_q_bb", "no_q_r",
+    "no_q_rr", "bishops_pawns", "knights_pawns",
     "k_n_pawns", "k_pawns8", "k_pawns6", "monster4", "k_pawns3",
 ]
 

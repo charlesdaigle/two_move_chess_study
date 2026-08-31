@@ -1,74 +1,57 @@
-# Status — 2026-08-30
+# Status — 2026-08-31
 
-Course-corrected build plan (published):
-https://claude.ai/code/artifact/f658ad76-d54f-403c-af0d-6e0fb4b62b56
+Plan (course-corrected): https://claude.ai/code/artifact/f658ad76-d54f-403c-af0d-6e0fb4b62b56
 
 ## Fleet
 
-| host | addr | hw | role |
+| host | addr | hw | state |
 |---|---|---|---|
-| ocean | (this box) | i7-13700F, 16 GB, RTX 3060 Ti 8 GB | controller, Rust build, analysis; later Postgres + dashboard + finalist training |
-| node0 | 10.0.1.100 | Pi 4B, 8 GB, 4 cores, Debian 13 | S2b certification worker |
-| node1 | 10.0.1.101 | Pi Zero 2 W, 512 MB, 4 cores | idle (best-effort tier) |
-| node2 | 10.0.1.102 | Pi Zero 2 W, 512 MB | idle |
+| ocean | (this box) | i7-13700F (24t), 16 GB, RTX 3060 Ti 8 GB | **running the perturbation study** |
+| node0 | 10.0.1.100 | Pi 4B, 8 GB, 4 cores | idle / spare |
+| node1/2 | 10.0.1.101/2 | Pi Zero 2 W, 512 MB | idle |
 
-Ocean -> Pi SSH: user `node`, key `~/.ssh/id_ed25519`, all three reachable.
-`deploy/ansible/inventory.ini` written for this topology; `ansible pis -m ping` green.
-No git on the Pis — code gets there by `rsync` from ocean.
+Ocean runs sweeps ~22x faster than node0 (measured: 2270 games/h vs 104/h at
+12k nodes) — long compute belongs on ocean, not the Pis.
 
-## Track 1 — certification (running on node0)
+## GPU — verified for compute
+`nvidia-smi`: driver 595.84, CUDA 13.2, RTX 3060 Ti, 7.66 GiB usable, idle.
+PyTorch cu128 in `~/gpu-check` venv: `cuda available: True`, cc 8.6 (Ampere),
+bf16 supported, ~8.4 TFLOP/s fp32 on a naive matmul. Ready for Phase 08 / the
+supervisor model. (Nothing uses the GPU yet.)
 
-Launched via `nohup` (no tmux on the Pi), logging to
-`experiments/results/incoming/s2b.log`, 4 workers, `nice -n 10`:
+## Certification — CLOSED, both pilot candidates falsified
 
-```
-python -m twomove.sweep --stage s2b --materials k_n_pawns,k_pawns8 \
-  --regimes ET --games 512 --nodes 12000 --out experiments/results/incoming
-```
+| rung | pilot (3k, N=32) | strong (12k) | verdict |
+|---|---|---|---|
+| `k_n_pawns` K+N+8P | 0.562 | **0.662** (N=463, CI [0.618, 0.704]) | double-mover favored |
+| `k_pawns8` K+8P | 0.531 | **0.380** (N=465, CI [0.337, 0.424]) | single-mover favored |
 
-Certifies (or moves) the two pilot candidates — `k_n_pawns` (0.562) and
-`k_pawns8` (0.531) under ET — at 4x the pilot node budget, N=512 (tau=0.05 needs
-N>=~384). Early rate ~100-120 games/h; both points ~overnight. Resumable: re-run
-the same command to continue.
+One knight swings the score 0.28 at strength — no clean material rung lands in
+the [0.45,0.55] band. Material tuning alone can't produce a balanced game.
+Results in `experiments/results/ocean/`.
 
-### Interim result (2026-08-31, k_n_pawns point at N=453/512)
+## RUNNING — perturbation study (ocean, branch `perturbation-study`)
 
-| point | nodes | N | score | 95% CI | vs pilot (3k, N=32) |
-|---|---|---|---|---|---|
-| s2b-k_n_pawns-ET | 12000 | 453 | **0.663** | [0.619, 0.705] | 0.562 → **+0.101 toward double-mover** |
+`experiments/perturbation/run.sh`, launched via `nohup timeout 18h ...`.
+Driver PID recorded in `experiments/results/perturbation/driver.log` (first line
+region). 100 points, N=384, 8000 nodes, 20 workers. Est. 13-17h; hard cap 18h.
 
-Verdict: **decided, NOT balanced** — CI entirely above the [0.40, 0.60] band.
-Also trips the research.md §5 strength-sensitivity flag (>0.10 drift toward the
-double-mover at higher node budget). The pilot's wide CI [0.393, 0.718] hid this.
-`k_pawns8` (the other pilot candidate, 0.531 at 3k) is next — if it also drifts
-up, the ET crossing sits lower on the ladder than the pilot found, and S3
-dampers become the route to balancing a recognizably-chess army.
+Evolve standard chess one knob at a time: dampers (`nc2`/`dp2`), doubling period
+(`k=2`), turn-order flip, single piece removals (new `rules.py` schemes:
+`full_p7/p6`, `no_n/b/r`, `no_nn/bb/rr`, `no_q_n/b/nn/bb`), then promising pairs.
+Design + rationale: `experiments/perturbation/README.md`.
 
-Monitor / collect / stop:
-```
-ssh node@10.0.1.100 'tail -f ~/two_move_chess_study/experiments/results/incoming/s2b.log'
-rsync -a node@10.0.1.100:~/two_move_chess_study/experiments/results/incoming/ experiments/results/incoming/
-.venv/bin/python -m twomove.analysis experiments/results/incoming
-ssh node@10.0.1.100 'pkill -f twomove.sweep'
-```
+- Live report: `experiments/results/perturbation/REPORT.md` (regenerated +
+  committed + pushed after every sub-batch).
+- `experiments/results/perturbation/DONE` appears when finished.
+- Resume after a crash: `bash experiments/perturbation/run.sh` (skips recorded games).
+- Stop: `kill <driver pid>` then `pkill -f 'sweep --stage'` (do NOT
+  `pkill -f twomove.sweep` — it matches its own shell).
 
-Still pending after this: S3 dampers + S5 turn order + the 4x budget gate
-(the plan's Track 1). node1/node2 will get the cheaper S3 screen (3k nodes)
-once it's set up — their RAM (~400 MB free) is too tight for the 12k run.
+## Rust engine — branch `rust-engine` (paused during the study)
+`engine/` Cargo workspace scaffolded, `cargo test` green, movegen/search stubbed.
+Next: orthodox pseudo-legal movegen + perft to depth 6. See `engine/README.md`.
 
-## Track 2 — Rust engine (scaffold on branch `rust-engine`)
-
-`engine/` — Cargo workspace, `cargo test` green (5 pass, 1 ignored).
-- `core/`: geometry (parameterized, 12x12 ceiling), piece, board (mailbox),
-  rules, and stubbed `movegen` / `turn` / `eval` / `search` / `perft` with
-  port notes.
-- `cli/`: `twomove` binary, line protocol (`engine/PROTOCOL.md`) — `id`/`ping`
-  wired, game commands stubbed.
-- Port order and "faithful first" discipline: `engine/README.md`.
-
-Next: implement orthodox pseudo-legal movegen + perft to depth 6.
-
-## Environment notes
-- ocean Python is 3.14; project venv at `.venv` (python-chess 1.11.2). 42 tests pass.
-- `analysis.py` reproduces the committed pilot REPORT numbers exactly.
-- Rust 1.98 via rustup at `~/.cargo/bin`.
+## Env
+- ocean venv `.venv` (python-chess 1.11.2, py3.14), 42 tests pass.
+- rustup at `~/.cargo/bin` (Rust 1.98). gh logged in (ssh), push works.

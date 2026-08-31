@@ -78,6 +78,8 @@ Sorted by distance from 50%. `balanced` = Wilson CI within [0.40,0.60] and score
 | s2-full_p6-IL | `mat=full_p6\|reg=IL\|nc2=0\|dp2=0\|k=1\|dbl=W\|first=W\|n=8000\|e=search` | 384 | 384/0/0 | 1.000 | [0.990, 1.000] | +2400 | 6 | checkmate:384 | no |
 | s2-full_p7-ET | `mat=full_p7\|reg=ET\|nc2=0\|dp2=0\|k=1\|dbl=W\|first=W\|n=8000\|e=search` | 384 | 384/0/0 | 1.000 | [0.990, 1.000] | +2400 | 7 | checkmate:384 | no |
 | s2-full_p7-IL | `mat=full_p7\|reg=IL\|nc2=0\|dp2=0\|k=1\|dbl=W\|first=W\|n=8000\|e=search` | 384 | 384/0/0 | 1.000 | [0.990, 1.000] | +2400 | 6 | checkmate:384 | no |
+| s5-full-ET-firstB | `mat=full\|reg=ET\|nc2=0\|dp2=0\|k=1\|dbl=W\|first=B\|n=8000\|e=search` | 384 | 384/0/0 | 1.000 | [0.990, 1.000] | +2400 | 7 | checkmate:384 | no |
+| s5-full-ET | `mat=full\|reg=ET\|nc2=0\|dp2=0\|k=1\|dbl=W\|first=W\|n=8000\|e=search` | 384 | 384/0/0 | 1.000 | [0.990, 1.000] | +2400 | 7 | checkmate:384 | no |
 | s3-full-ET-nc2 | `mat=full\|reg=ET\|nc2=1\|dp2=0\|k=1\|dbl=W\|first=W\|n=8000\|e=search` | 384 | 384/0/0 | 1.000 | [0.990, 1.000] | +2400 | 11 | checkmate:384 | no |
 | s3-no_bb-ET-nc2 | `mat=no_bb\|reg=ET\|nc2=1\|dp2=0\|k=1\|dbl=W\|first=W\|n=8000\|e=search` | 384 | 384/0/0 | 1.000 | [0.990, 1.000] | +2400 | 12 | checkmate:384 | no |
 | s2-no_bb-IL | `mat=no_bb\|reg=IL\|nc2=0\|dp2=0\|k=1\|dbl=W\|first=W\|n=8000\|e=search` | 384 | 384/0/0 | 1.000 | [0.990, 1.000] | +2400 | 8 | checkmate:384 | no |

@@ -65,7 +65,7 @@ Sorted by distance from 50%. `balanced` = Wilson CI within [0.40,0.60] and score
 | s2-no_q_n-IL | `mat=no_q_n\|reg=IL\|nc2=0\|dp2=0\|k=1\|dbl=W\|first=W\|n=8000\|e=search` | 384 | 383/0/1 | 0.997 | [0.985, 1.000] | +1033 | 16 | checkmate:384 | no |
 | s3-no_q_r-ET-nc2 | `mat=no_q_r\|reg=ET\|nc2=1\|dp2=0\|k=1\|dbl=W\|first=W\|n=8000\|e=search` | 384 | 382/2/0 | 0.997 | [0.985, 1.000] | +1033 | 20 | checkmate:382, repetition:2 | no |
 | s2-no_q_r-IL | `mat=no_q_r\|reg=IL\|nc2=0\|dp2=0\|k=1\|dbl=W\|first=W\|n=8000\|e=search` | 384 | 383/0/1 | 0.997 | [0.985, 1.000] | +1033 | 16 | checkmate:384 | no |
-| s2-no_q-ET | `mat=no_q\|reg=ET\|nc2=0\|dp2=0\|k=1\|dbl=W\|first=W\|n=8000\|e=search` | 384 | 383/0/1 | 0.997 | [0.985, 1.000] | +1033 | 15 | checkmate:384 | no |
+| s2-no_q-ET | `mat=no_q\|reg=ET\|nc2=0\|dp2=0\|k=1\|dbl=W\|first=W\|n=8000\|e=search` | 768 | 766/0/2 | 0.997 | [0.991, 0.999] | +1033 | 15 | checkmate:768 | no |
 | s3-no_rr-ET-nc2 | `mat=no_rr\|reg=ET\|nc2=1\|dp2=0\|k=1\|dbl=W\|first=W\|n=8000\|e=search` | 384 | 383/0/1 | 0.997 | [0.985, 1.000] | +1033 | 11 | checkmate:384 | no |
 | s2-no_b-ET | `mat=no_b\|reg=ET\|nc2=0\|dp2=0\|k=1\|dbl=W\|first=W\|n=8000\|e=search` | 384 | 383/1/0 | 0.999 | [0.988, 1.000] | +1154 | 8 | checkmate:383, repetition:1 | no |
 | s2-no_q_b-ET | `mat=no_q_b\|reg=ET\|nc2=0\|dp2=0\|k=1\|dbl=W\|first=W\|n=8000\|e=search` | 384 | 383/1/0 | 0.999 | [0.988, 1.000] | +1154 | 17 | checkmate:383, repetition:1 | no |
@@ -73,6 +73,7 @@ Sorted by distance from 50%. `balanced` = Wilson CI within [0.40,0.60] and score
 | s3-no_q-IL-nc2 | `mat=no_q\|reg=IL\|nc2=1\|dp2=0\|k=1\|dbl=W\|first=W\|n=8000\|e=search` | 384 | 383/1/0 | 0.999 | [0.988, 1.000] | +1154 | 20 | checkmate:383, no_progress:1 | no |
 | s4-no_rr-ET-k2 | `mat=no_rr\|reg=ET\|nc2=0\|dp2=0\|k=2\|dbl=W\|first=W\|n=8000\|e=search` | 384 | 383/1/0 | 0.999 | [0.988, 1.000] | +1154 | 14 | checkmate:383, repetition:1 | no |
 | s3-no_rr-IL-nc2 | `mat=no_rr\|reg=IL\|nc2=1\|dp2=0\|k=1\|dbl=W\|first=W\|n=8000\|e=search` | 384 | 383/1/0 | 0.999 | [0.988, 1.000] | +1154 | 13 | checkmate:383, no_progress:1 | no |
+| s2-no_rr-ET | `mat=no_rr\|reg=ET\|nc2=0\|dp2=0\|k=1\|dbl=W\|first=W\|n=8000\|e=search` | 768 | 767/1/0 | 0.999 | [0.994, 1.000] | +1274 | 7 | checkmate:767, repetition:1 | no |
 | s2-full_p6-ET | `mat=full_p6\|reg=ET\|nc2=0\|dp2=0\|k=1\|dbl=W\|first=W\|n=8000\|e=search` | 384 | 384/0/0 | 1.000 | [0.990, 1.000] | +2400 | 7 | checkmate:384 | no |
 | s2-full_p6-IL | `mat=full_p6\|reg=IL\|nc2=0\|dp2=0\|k=1\|dbl=W\|first=W\|n=8000\|e=search` | 384 | 384/0/0 | 1.000 | [0.990, 1.000] | +2400 | 6 | checkmate:384 | no |
 | s2-full_p7-ET | `mat=full_p7\|reg=ET\|nc2=0\|dp2=0\|k=1\|dbl=W\|first=W\|n=8000\|e=search` | 384 | 384/0/0 | 1.000 | [0.990, 1.000] | +2400 | 7 | checkmate:384 | no |
@@ -87,10 +88,12 @@ Sorted by distance from 50%. `balanced` = Wilson CI within [0.40,0.60] and score
 | s2-no_n-IL | `mat=no_n\|reg=IL\|nc2=0\|dp2=0\|k=1\|dbl=W\|first=W\|n=8000\|e=search` | 384 | 384/0/0 | 1.000 | [0.990, 1.000] | +2400 | 8 | checkmate:384 | no |
 | s2-no_q_b-IL | `mat=no_q_b\|reg=IL\|nc2=0\|dp2=0\|k=1\|dbl=W\|first=W\|n=8000\|e=search` | 384 | 384/0/0 | 1.000 | [0.990, 1.000] | +2400 | 16 | checkmate:384 | no |
 | s2-no_q_n-ET | `mat=no_q_n\|reg=ET\|nc2=0\|dp2=0\|k=1\|dbl=W\|first=W\|n=8000\|e=search` | 384 | 384/0/0 | 1.000 | [0.990, 1.000] | +2400 | 16 | checkmate:384 | no |
+| s5-no_q-ET-firstB | `mat=no_q\|reg=ET\|nc2=0\|dp2=0\|k=1\|dbl=W\|first=B\|n=8000\|e=search` | 384 | 384/0/0 | 1.000 | [0.990, 1.000] | +2400 | 16 | checkmate:384 | no |
 | s2-no_q-IL | `mat=no_q\|reg=IL\|nc2=0\|dp2=0\|k=1\|dbl=W\|first=W\|n=8000\|e=search` | 384 | 384/0/0 | 1.000 | [0.990, 1.000] | +2400 | 15 | checkmate:384 | no |
-| s2-no_rr-ET | `mat=no_rr\|reg=ET\|nc2=0\|dp2=0\|k=1\|dbl=W\|first=W\|n=8000\|e=search` | 384 | 384/0/0 | 1.000 | [0.990, 1.000] | +2400 | 7 | checkmate:384 | no |
+| s5-no_rr-ET-firstB | `mat=no_rr\|reg=ET\|nc2=0\|dp2=0\|k=1\|dbl=W\|first=B\|n=8000\|e=search` | 384 | 384/0/0 | 1.000 | [0.990, 1.000] | +2400 | 8 | checkmate:384 | no |
 | s2-no_rr-IL | `mat=no_rr\|reg=IL\|nc2=0\|dp2=0\|k=1\|dbl=W\|first=W\|n=8000\|e=search` | 384 | 384/0/0 | 1.000 | [0.990, 1.000] | +2400 | 7 | checkmate:384 | no |
-| s2-no_r-ET | `mat=no_r\|reg=ET\|nc2=0\|dp2=0\|k=1\|dbl=W\|first=W\|n=8000\|e=search` | 384 | 384/0/0 | 1.000 | [0.990, 1.000] | +2400 | 7 | checkmate:384 | no |
+| s5-no_r-ET-firstB | `mat=no_r\|reg=ET\|nc2=0\|dp2=0\|k=1\|dbl=W\|first=B\|n=8000\|e=search` | 384 | 384/0/0 | 1.000 | [0.990, 1.000] | +2400 | 7 | checkmate:384 | no |
+| s2-no_r-ET | `mat=no_r\|reg=ET\|nc2=0\|dp2=0\|k=1\|dbl=W\|first=W\|n=8000\|e=search` | 768 | 768/0/0 | 1.000 | [0.995, 1.000] | +2400 | 7 | checkmate:768 | no |
 | s3-no_r-ET-nc2 | `mat=no_r\|reg=ET\|nc2=1\|dp2=0\|k=1\|dbl=W\|first=W\|n=8000\|e=search` | 384 | 384/0/0 | 1.000 | [0.990, 1.000] | +2400 | 11 | checkmate:384 | no |
 | s2-no_r-IL | `mat=no_r\|reg=IL\|nc2=0\|dp2=0\|k=1\|dbl=W\|first=W\|n=8000\|e=search` | 384 | 384/0/0 | 1.000 | [0.990, 1.000] | +2400 | 8 | checkmate:384 | no |
 | s3-no_r-IL-nc2 | `mat=no_r\|reg=IL\|nc2=1\|dp2=0\|k=1\|dbl=W\|first=W\|n=8000\|e=search` | 384 | 384/0/0 | 1.000 | [0.990, 1.000] | +2400 | 12 | checkmate:384 | no |

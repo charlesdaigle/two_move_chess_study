@@ -42,6 +42,7 @@ Sorted by distance from 50%. `balanced` = Wilson CI within [0.40,0.60] and score
 | s3-full-IL-dp2 | `mat=full\|reg=IL\|nc2=0\|dp2=1\|k=1\|dbl=W\|first=W\|n=8000\|e=search` | 384 | 380/1/3 | 0.991 | [0.975, 0.997] | +814 | 12 | checkmate:383, repetition:1 | no |
 | s3-no_q_r-IL-nc2 | `mat=no_q_r\|reg=IL\|nc2=1\|dp2=0\|k=1\|dbl=W\|first=W\|n=8000\|e=search` | 384 | 378/5/1 | 0.991 | [0.975, 0.997] | +814 | 23 | checkmate:379, repetition:4, no_progress:1 | no |
 | s3-no_r-IL-dp2 | `mat=no_r\|reg=IL\|nc2=0\|dp2=1\|k=1\|dbl=W\|first=W\|n=8000\|e=search` | 384 | 380/1/3 | 0.991 | [0.975, 0.997] | +814 | 12 | checkmate:383, repetition:1 | no |
+| s4-full-ET-k2 | `mat=full\|reg=ET\|nc2=0\|dp2=0\|k=2\|dbl=W\|first=W\|n=8000\|e=search` | 384 | 381/0/3 | 0.992 | [0.977, 0.997] | +842 | 14 | checkmate:384 | no |
 | s4-no_q-IL-k2 | `mat=no_q\|reg=IL\|nc2=0\|dp2=0\|k=2\|dbl=W\|first=W\|n=8000\|e=search` | 384 | 380/2/2 | 0.992 | [0.977, 0.997] | +842 | 26 | checkmate:382, no_progress:1, repetition:1 | no |
 | s2-no_q_r-ET | `mat=no_q_r\|reg=ET\|nc2=0\|dp2=0\|k=1\|dbl=W\|first=W\|n=8000\|e=search` | 384 | 381/1/2 | 0.994 | [0.979, 0.998] | +873 | 16 | checkmate:383, repetition:1 | no |
 | s3-full-ET-nc2-dp2 | `mat=full\|reg=ET\|nc2=1\|dp2=1\|k=1\|dbl=W\|first=W\|n=8000\|e=search` | 384 | 382/0/2 | 0.995 | [0.981, 0.999] | +912 | 14 | checkmate:384 | no |
@@ -52,6 +53,7 @@ Sorted by distance from 50%. `balanced` = Wilson CI within [0.40,0.60] and score
 | s3-full-ET-dp2 | `mat=full\|reg=ET\|nc2=0\|dp2=1\|k=1\|dbl=W\|first=W\|n=8000\|e=search` | 384 | 382/1/1 | 0.996 | [0.983, 0.999] | +963 | 12 | checkmate:383, no_progress:1 | no |
 | s3-full-IL-nc2-dp2 | `mat=full\|reg=IL\|nc2=1\|dp2=1\|k=1\|dbl=W\|first=W\|n=8000\|e=search` | 384 | 382/1/1 | 0.996 | [0.983, 0.999] | +963 | 17 | checkmate:383, repetition:1 | no |
 | s4-no_r-IL-k2 | `mat=no_r\|reg=IL\|nc2=0\|dp2=0\|k=2\|dbl=W\|first=W\|n=8000\|e=search` | 384 | 382/1/1 | 0.996 | [0.983, 0.999] | +963 | 15 | checkmate:383, repetition:1 | no |
+| s4-full-IL-k2 | `mat=full\|reg=IL\|nc2=0\|dp2=0\|k=2\|dbl=W\|first=W\|n=8000\|e=search` | 384 | 383/0/1 | 0.997 | [0.985, 1.000] | +1033 | 14 | checkmate:384 | no |
 | s3-full-IL-nc2 | `mat=full\|reg=IL\|nc2=1\|dp2=0\|k=1\|dbl=W\|first=W\|n=8000\|e=search` | 384 | 383/0/1 | 0.997 | [0.985, 1.000] | +1033 | 13 | checkmate:384 | no |
 | s2-no_bb-ET | `mat=no_bb\|reg=ET\|nc2=0\|dp2=0\|k=1\|dbl=W\|first=W\|n=8000\|e=search` | 384 | 383/0/1 | 0.997 | [0.985, 1.000] | +1033 | 9 | checkmate:384 | no |
 | s4-no_nn-ET-k2 | `mat=no_nn\|reg=ET\|nc2=0\|dp2=0\|k=2\|dbl=W\|first=W\|n=8000\|e=search` | 384 | 383/0/1 | 0.997 | [0.985, 1.000] | +1033 | 16 | checkmate:384 | no |

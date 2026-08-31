@@ -31,6 +31,19 @@ Certifies (or moves) the two pilot candidates — `k_n_pawns` (0.562) and
 N>=~384). Early rate ~100-120 games/h; both points ~overnight. Resumable: re-run
 the same command to continue.
 
+### Interim result (2026-08-31, k_n_pawns point at N=453/512)
+
+| point | nodes | N | score | 95% CI | vs pilot (3k, N=32) |
+|---|---|---|---|---|---|
+| s2b-k_n_pawns-ET | 12000 | 453 | **0.663** | [0.619, 0.705] | 0.562 → **+0.101 toward double-mover** |
+
+Verdict: **decided, NOT balanced** — CI entirely above the [0.40, 0.60] band.
+Also trips the research.md §5 strength-sensitivity flag (>0.10 drift toward the
+double-mover at higher node budget). The pilot's wide CI [0.393, 0.718] hid this.
+`k_pawns8` (the other pilot candidate, 0.531 at 3k) is next — if it also drifts
+up, the ET crossing sits lower on the ladder than the pilot found, and S3
+dampers become the route to balancing a recognizably-chess army.
+
 Monitor / collect / stop:
 ```
 ssh node@10.0.1.100 'tail -f ~/two_move_chess_study/experiments/results/incoming/s2b.log'
